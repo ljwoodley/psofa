@@ -1,14 +1,12 @@
 #' Calculate cardiovascular score based on age group
 #'
 #' @param read_flowsheets the raw flowsheet data obtained from the IDR
-#' @param read_medications the raw medications data obtained from the IDR
 #' @param child_dob the dob of each subjects
 #'
 #' @return A data frame with the calculated cardiovascular score by age group
 #' @export
 get_cv_by_age_group <-
   function(read_flowsheets,
-           read_medications,
            child_dob) {
     cv_by_age_group <- read_flowsheets %>%
       dplyr::filter(
@@ -25,7 +23,7 @@ get_cv_by_age_group <-
       # if there are multiple values within an hour take the minimum value
       dplyr::filter(.data$meas_value == min(.data$meas_value)) %>%
       dplyr::ungroup() %>%
-      dplyr::left_join(.data$child_dob, by = "child_mrn_uf") %>%
+      dplyr::left_join(child_dob, by = "child_mrn_uf") %>%
       dplyr::mutate(
         age_interval = lubridate::interval(.data$child_birth_date, lubridate::as_date(.data$q1hr)) %/% months(1),
         age_group_cardiovascular_score = dplyr::case_when(
