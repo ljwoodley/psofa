@@ -204,7 +204,7 @@ get_nasal_state <- function(read_flowsheets) {
 #' @return A dataframe containing the FiO2 values
 #'
 #' @export
-get_fio2_values <- function(categorized_respiratory_devices, read_flowsheets, nasal_flow_rate_state) {
+get_fio2_value <- function(categorized_respiratory_devices, read_flowsheets, nasal_flow_rate_state) {
 
   # exclude nasal devices from this as they stop devices
   fio2_continuation_devices <- categorized_respiratory_devices %>%
@@ -261,8 +261,7 @@ get_fio2_values <- function(categorized_respiratory_devices, read_flowsheets, na
     dplyr::select(.data$child_mrn_uf,
                   .data$recorded_time,
                   .data$q1hr,
-                  value = .data$lab_result) %>%
-    dplyr::mutate(source = "fio2")
+                  value = .data$lab_result)
 
   complete_fio2_value <- fio2_value %>%
     dplyr::full_join(nasal_flow_rate_state, by = c("child_mrn_uf", "q1hr")) %>%
@@ -319,7 +318,7 @@ get_spo2_value <- function(read_flowsheets) {
 #'
 #' @param expanded_child_encounter a df returned by \code{\link{get_child_encounter}}
 #' @param pao2_fio2_resp_score a df returned by \code{\link{get_pao2_fio2_ratio}}
-#' @param fio2_value a df returned by \code{\link{get_fio2_value}}
+#' @param complete_fio2_value a df returned by \code{\link{get_fio2_value}}
 #' @param spo2_value a df returned by \code{\link{get_spo2_value}}
 #' @param respiratory_support_status a df returned by \code{\link{get_respiratory_status}}
 #' @param nasal_flow_rate_state a df returned by \code{\link{get_nasal_state}}
@@ -330,7 +329,7 @@ get_spo2_value <- function(read_flowsheets) {
 get_respiratory_score <-
   function(expanded_child_encounter,
            pao2_fio2_resp_score,
-           fio2_value,
+           complete_fio2_value,
            spo2_value,
            respiratory_support_status,
            nasal_flow_rate_state) {
@@ -368,7 +367,7 @@ get_respiratory_score <-
         ),
         resp_score = dplyr::coalesce(.data$pao2_fio2_resp_score, .data$spo2_fio2_resp_score)
       ) %>%
-      dplyr::select(-c(on_respiratory_support.x, on_respiratory_support.y))
+      dplyr::select(-c(.data$on_respiratory_support.x, .data$on_respiratory_support.y))
 
     return(respiratory_score)
 }
