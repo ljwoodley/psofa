@@ -317,7 +317,7 @@ get_spo2_value <- function(read_flowsheets) {
 #' Calculate respiratory score
 #'
 #' @param expanded_child_encounter a df returned by \code{\link{get_child_encounter}}
-#' @param pao2_fio2_resp_score a df returned by \code{\link{get_pao2_fio2_ratio}}
+#' @param pao2_fio2_resp_score a df returned by \code{\link{get_pao2_fio2_resp_score}}
 #' @param complete_fio2_value a df returned by \code{\link{get_fio2_value}}
 #' @param spo2_value a df returned by \code{\link{get_spo2_value}}
 #' @param respiratory_support_status a df returned by \code{\link{get_respiratory_status}}
@@ -367,8 +367,8 @@ get_respiratory_score <-
         ),
         respiratory_score = dplyr::coalesce(.data$pao2_fio2_resp_score, .data$spo2_fio2_resp_score)
       ) %>%
-      mutate_at("respiratory_score", ~ replace(., is.na(.), 0)) %>%
-      ungroup() %>%
+      dplyr::mutate_at("respiratory_score", ~ replace(., is.na(.), 0)) %>%
+      dplyr::ungroup() %>%
       dplyr::select(.data$child_mrn_uf, .data$q1hr, .data$respiratory_score, .data$on_respiratory_support)
 
     return(respiratory_score)
