@@ -326,7 +326,7 @@ get_spo2_value <- function(read_flowsheets) {
 #' @return A dataframe containing the respiratory scores
 #'
 #' @export
-get_respiratory_score <-
+get_respiratory <-
   function(expanded_child_encounter,
            pao2_fio2_resp_score,
            complete_fio2_value,
@@ -334,7 +334,7 @@ get_respiratory_score <-
            respiratory_support_status,
            nasal_flow_rate_state) {
 
-    respiratory_score <- expanded_child_encounter %>%
+    respiratory <- expanded_child_encounter %>%
       dplyr::left_join(pao2_fio2_resp_score, by = c("child_mrn_uf", "q1hr")) %>%
       dplyr::left_join(complete_fio2_value, by = c("child_mrn_uf", "q1hr")) %>%
       dplyr::left_join(spo2_value, by = c("child_mrn_uf", "q1hr")) %>%
@@ -371,5 +371,5 @@ get_respiratory_score <-
       dplyr::ungroup() %>%
       dplyr::select(.data$child_mrn_uf, .data$q1hr, .data$respiratory_score, .data$on_respiratory_support)
 
-    return(respiratory_score)
+    return(respiratory)
 }
