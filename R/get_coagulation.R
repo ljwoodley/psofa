@@ -1,6 +1,10 @@
 #' Calculate coagulation score
 #' @description Ingests the raw child labs and calculates the coagulation score based on the platelet count.
-#'              When there are multiple platelet counts recorded within an hour the last recorded value is kept.
+#'
+#'\itemize{
+#'   \item Use the last recorded inferred_specimen_datetime within an hour
+#'   \item If there are multiple values for the last recorded inferred_specimen_datetime then use the max coagulation_score
+#'   }
 #'
 #' @param read_child_labs the raw child labs csv file obtained from the IDR
 #'
@@ -24,8 +28,8 @@ get_coagulation <- function(read_child_labs) {
       q1hr = lubridate::floor_date(.data$inferred_specimen_datetime, "1hour")
     ) %>%
     dplyr::group_by(.data$child_mrn_uf, .data$q1hr) %>%
-    # if there are multiple values within an hour take the last recorded value
-    dplyr::filter(.data$inferred_specimen_datetime == max(.data$inferred_specimen_datetime)) %>%
+    dplyr::slice_max(.data$inferred_specimen_datetime, with_ties = TRUE) %>%
+    dplyr::slice_max(.data$coagulation_score, with_ties = FALSE) %>%
     dplyr::select(.data$child_mrn_uf, .data$q1hr, .data$coagulation_score)
 
   return(coagulation)
