@@ -87,7 +87,7 @@ get_renal <- function(read_child_labs, child_dob) {
         .data$age_in_months > 216 & .data$lab_result >= 5 ~ 4
       )
     ) %>%
-    dplyr::select(.data$child_mrn_uf, .data$q1hr, .data$age_in_months, .data$renal_score)
+    dplyr::select(.data$child_mrn_uf, .data$q1hr, .data$renal_score)
 
   return(renal)
 }
