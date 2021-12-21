@@ -47,7 +47,7 @@ get_respiratory_status <- function(read_flowsheets, categorized_respiratory_devi
 #' @return A dataframe containing the respiratory scores based on the paO2/fiO2 ratio
 #'
 #' @export
-get_pao2_fio2_ratio <- function(read_child_labs, transformed_child_encounter, respiratory_support_status) {
+get_pao2_fio2_resp_score <- function(read_child_labs, transformed_child_encounter, respiratory_support_status) {
   pao2_fio2_resp_score <- read_child_labs %>%
     dplyr::filter(
       .data$child_mrn_uf %in% transformed_child_encounter$child_mrn_uf &
@@ -365,9 +365,11 @@ get_respiratory_score <-
           .data$ratio >= 292 ~ 0,
           TRUE ~ NA_real_
         ),
-        resp_score = dplyr::coalesce(.data$pao2_fio2_resp_score, .data$spo2_fio2_resp_score)
+        respiratory_score = dplyr::coalesce(.data$pao2_fio2_resp_score, .data$spo2_fio2_resp_score)
       ) %>%
-      dplyr::select(-c(.data$on_respiratory_support.x, .data$on_respiratory_support.y))
+      mutate_at("respiratory_score", ~ replace(., is.na(.), 0)) %>%
+      ungroup() %>%
+      dplyr::select(.data$child_mrn_uf, .data$q1hr, .data$respiratory_score, .data$on_respiratory_support)
 
     return(respiratory_score)
 }
