@@ -154,7 +154,6 @@ get_nasal_state <- function(read_flowsheets) {
     dplyr::select(.data$child_mrn_uf, .data$recorded_time, flow_value = .data$meas_value, .data$units) %>%
     dplyr::arrange(.data$child_mrn_uf, .data$recorded_time)
 
-  # TODO: what is an acceptable range value. max l/min is 900
   nasal_flow_rate_state <- read_flowsheets %>%
     dplyr::filter(
       .data$flowsheet_group == "oxygenation" &
