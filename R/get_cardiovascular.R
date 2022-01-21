@@ -25,22 +25,22 @@ get_cv_by_age_group <-
       dplyr::ungroup() %>%
       dplyr::left_join(child_dob, by = "child_mrn_uf") %>%
       dplyr::mutate(
-        age_interval = lubridate::interval(.data$child_birth_date, lubridate::as_date(.data$q1hr)) %/% months(1),
+        age_in_months = lubridate::interval(.data$child_birth_date, lubridate::as_date(.data$q1hr)) %/% months(1),
         age_group_cardiovascular_score = dplyr::case_when(
-          .data$age_interval < 1 & .data$meas_value >= 46 ~ 0,
-          .data$age_interval < 1 & .data$meas_value < 46 ~ 1,
-          .data$age_interval < 11 & .data$meas_value >= 55 ~ 0,
-          .data$age_interval < 11 & .data$meas_value < 55 ~ 1,
-          .data$age_interval < 23 & .data$meas_value >= 60 ~ 0,
-          .data$age_interval < 23 & .data$meas_value < 60 ~ 1,
-          .data$age_interval < 59 & .data$meas_value >= 62 ~ 0,
-          .data$age_interval < 59 & .data$meas_value < 62 ~ 1,
-          .data$age_interval < 143 & .data$meas_value >= 65 ~ 0,
-          .data$age_interval < 143 & .data$meas_value < 65 ~ 1,
-          .data$age_interval < 216 & .data$meas_value >= 67 ~ 0,
-          .data$age_interval < 216 & .data$meas_value < 67 ~ 1,
-          .data$age_interval > 216 & .data$meas_value >= 70 ~ 0,
-          .data$age_interval > 216 & .data$meas_value < 70 ~ 1
+          .data$age_in_months < 1 & .data$meas_value >= 46 ~ 0,
+          .data$age_in_months < 1 & .data$meas_value < 46 ~ 1,
+          .data$age_in_months < 11 & .data$meas_value >= 55 ~ 0,
+          .data$age_in_months < 11 & .data$meas_value < 55 ~ 1,
+          .data$age_in_months < 23 & .data$meas_value >= 60 ~ 0,
+          .data$age_in_months < 23 & .data$meas_value < 60 ~ 1,
+          .data$age_in_months < 59 & .data$meas_value >= 62 ~ 0,
+          .data$age_in_months < 59 & .data$meas_value < 62 ~ 1,
+          .data$age_in_months < 143 & .data$meas_value >= 65 ~ 0,
+          .data$age_in_months < 143 & .data$meas_value < 65 ~ 1,
+          .data$age_in_months <= 216 & .data$meas_value >= 67 ~ 0,
+          .data$age_in_months <= 216 & .data$meas_value < 67 ~ 1,
+          .data$age_in_months > 216 & .data$meas_value >= 70 ~ 0,
+          .data$age_in_months > 216 & .data$meas_value < 70 ~ 1
         )
       )
 
