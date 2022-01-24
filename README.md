@@ -10,7 +10,10 @@ Data collected includes all laboratory results (including autopsy reports, radio
 
 These data were used to calculate the pSOFA score at q1 hour granularity by unit designation (PICU, PCICU) based on clinical parameters including the need for mechanical ventilation, oxygen requirement, requirement for cardiovascular support in the form of vasoactive drugs, and the presence of thrombocytopenia, renal function, neurologic status, and then averaging the score for each patient across different time intervals.
 
-The data was acquired from the University of Florida Integrated Data Repository under the aegis of IRB #202001996. The principal investigator on the IRB is James L Wynn, MD.
+The data was acquired from the University of Florida Integrated Data Repository under the aegis of IRB #202001996. The data is not accessible for public use due to PHI restrictions. For developers that have been granted access to this data please contact [James Wynn](james.wynn@peds.ufl.edu), [Philip Chase](pbc@ufl.edu) or [Laurence James-Woodley](lawjames1@ufl.edu) for the data download link.
+
+The principal investigator on this IRB is James L Wynn. The co-investigators are Lara Nichols and Diomel de la Cruz.
+
 
 
 ## Score Calculation
