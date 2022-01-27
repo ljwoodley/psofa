@@ -1,5 +1,3 @@
-^renv$
-^renv\.lock$
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^pre-commit.sh$
@@ -9,3 +7,4 @@
 ^tests\.bats/.*$
 ^run_tests.sh$
 .pdf$
+.md$

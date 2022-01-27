@@ -20,7 +20,6 @@ Imports:
     purrr,
     readr,
     readxl,
-    renv,
     rlang,
     stringr,
     tidyr
