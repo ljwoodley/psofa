@@ -19,7 +19,7 @@ library(htmltools)
 
 ### Child Encounter
 ```{r}
-child_encounter <- read_csv("data/IDR-PICU-091720/PICU-child_encounter_data.csv") %>% 
+child_encounter <- read_csv("data/picu/PICU-child_encounter_data.csv") %>% 
   clean_names() 
 
 includeHTML(view(dfSummary(child_encounter, graph.col = FALSE)))
@@ -28,7 +28,7 @@ includeHTML(view(dfSummary(child_encounter, graph.col = FALSE)))
 
 ### Labs
 ```{r}
-labs <- read_csv("data/IDR-PICU-091720/PICU-child_labs.csv") %>% 
+labs <- read_csv("data/picu/PICU-child_labs.csv") %>% 
   clean_names()
 
 includeHTML(view(dfSummary(labs, graph.col = FALSE)))
@@ -36,7 +36,7 @@ includeHTML(view(dfSummary(labs, graph.col = FALSE)))
 
 ### Medications
 ```{r}
-medications <- read_csv("data/IDR-PICU-091720/PICU-child_medications.csv") %>% 
+medications <- read_csv("data/picu/PICU-child_medications.csv") %>% 
   clean_names()
 
 includeHTML(view(dfSummary(medications, graph.col = FALSE)))
@@ -44,7 +44,7 @@ includeHTML(view(dfSummary(medications, graph.col = FALSE)))
 
 ### Flowsheets
 ```{r}
-flowsheets <- read_csv("data/IDR-PICU-091720/PICU-child_flowsheets.csv") %>% 
+flowsheets <- read_csv("data/picu/PICU-child_flowsheets.csv") %>% 
   clean_names()
 
 includeHTML(view(dfSummary(flowsheets, graph.col = FALSE)))
