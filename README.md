@@ -14,19 +14,19 @@ The data was acquired from the University of Florida Integrated Data Repository 
 
 The principal investigator on this IRB is James L Wynn. The co-investigators are Lara Nichols and Diomel de la Cruz.
 
-## Analytic Steps
+### Analytic Steps
 
 Once acquired, all of the files in the source_data folder of the pSOFA file repository should be placed in the ./data/picu/ folder of this project to allow the analytic tools to run without modification.
 
-Build the psofa package inclkdued in this repo. either by running `R CMD INSTALL --preclean --no-multiarch --with-keep.source .` at the root of the repo or using RStudio's Build features.
+Build the psofa package included in this repo. either by running `R CMD INSTALL --preclean --no-multiarch --with-keep.source .` at the root of the repo or using RStudio's Build features.
 
 Run `analysis/make_psofa_dataset.R` to create pSOFA data products from the raw IDR data.
 
 Knit `data_summary.Rmd` to generate a summary of the input datasets.
 
-## Score Calculation
+### Score Calculation
 See [pSOFA Components and Scoring](psofa_components_and_scoring.pdf) for the scoring system.
 
-## Developer Notes
+### Developer Notes
 Software developers who would like to make contributions to this repository should read the [Developer Notes.](developer_notes.md)
 
