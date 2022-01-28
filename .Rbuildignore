@@ -1,0 +1,10 @@
+^.*\.Rproj$
+^\.Rproj\.user$
+^pre-commit.sh$
+^output/.*$
+^data/.*$
+^analysis/.*$
+^tests\.bats/.*$
+^run_tests.sh$
+.pdf$
+.md$

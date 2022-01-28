@@ -38,6 +38,9 @@ vignettes/*.pdf
 # R Environment Variables
 .Renviron
 
-#Output
-!.html
-!.csv
+# data files
+*.csv
+*.xls
+*.xlsx
+*.zip
+*.html

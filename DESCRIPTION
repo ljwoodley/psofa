@@ -1,0 +1,27 @@
+Package: psofa
+Type: Package
+Title: Calculate pSOFA score
+Version: 0.1.0
+Authors@R: c(
+  person("Laurence", "James-Woodley", email = "lawjames1@ufl.edu", role = c("aut", "cre")),
+  person("Philip", "Chase", email = "pbc@ufl.edu", role = "aut")
+  )
+Description: Provides data transformation functions to calculate the pSOFA score.
+License: Apache License (>= 2.0)
+Encoding: UTF-8
+LazyData: true
+Imports:
+    devtools,
+    dplyr,
+    janitor,
+    here,
+    lubridate,
+    magrittr,
+    purrr,
+    readr,
+    readxl,
+    rlang,
+    stringr,
+    tidyr
+RoxygenNote: 7.1.2
+Roxygen: list(markdown = TRUE)
