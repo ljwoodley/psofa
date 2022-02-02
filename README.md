@@ -25,7 +25,12 @@ Run `analysis/make_psofa_dataset.R` to create pSOFA data products from the raw I
 Knit `data_summary.Rmd` to generate a summary of the input datasets.
 
 ### Score Calculation
+
+### pSOFA Score
 See [pSOFA Components and Scoring](psofa_components_and_scoring.pdf) for the scoring system.
+
+### Vasoactive-Inotropic Score (VIS)
+VIS = dopamine dose (μg/kg/min) + dobutamine dose (μg/kg/min)+ 100 x epinephrine dose (μg/kg/min) + 100 x norepinephrine dose (μg/ kg/min)
 
 ### Developer Notes
 Software developers who would like to make contributions to this repository should read the [Developer Notes.](developer_notes.md)
