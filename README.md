@@ -30,7 +30,7 @@ Knit [data_summary.Rmd](analysis/data_summary.Rmd) to generate a summary of the 
 See [pSOFA Components and Scoring](psofa_components_and_scoring.pdf) for the scoring system.
 
 ### Vasoactive-Inotropic Score (VIS)
-VIS = dopamine dose (μg/kg/min) + dobutamine dose (μg/kg/min) + 100 $\times$ epinephrine dose (μg/kg/min) + 100 $\times$ norepinephrine dose (μg/ kg/min)
+VIS = dopamine dose (μg/kg/min) + dobutamine dose (μg/kg/min)+ 100 x epinephrine dose (μg/kg/min) + 100 x norepinephrine dose (μg/ kg/min)
 
 # Developer Notes
 Software developers who would like to make contributions to this repository should read the [Developer Notes.](developer_notes.md)
