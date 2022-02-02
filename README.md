@@ -22,7 +22,7 @@ Build the psofa package included in this repo. either by running `R CMD INSTALL 
 
 Run [make_psofa_dataset.R](analysis/make_psofa_dataset.R) to create pSOFA data products from the raw IDR data.
 
-Knit `data_summary.Rmd` to generate a summary of the input datasets.
+Knit [data_summary.Rmd](analysis/data_summary.Rmd) to generate a summary of the input datasets.
 
 # Score Calculation
 
