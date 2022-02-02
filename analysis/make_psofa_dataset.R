@@ -78,7 +78,7 @@ respiratory <- get_respiratory(
   nasal_flow_rate_state
 )
 
-psofa_score <- list(
+psofa_data <- list(
   expanded_child_encounter,
   coagulation,
   hepatic,
@@ -91,7 +91,35 @@ psofa_score <- list(
   group_by(child_mrn_uf, encounter) %>%
   fill(ends_with("_score"), .direction = "down") %>%
   ungroup() %>%
-  mutate_at(vars(ends_with("_score")), ~ replace(., is.na(.), 0)) %>%
+  mutate_at(
+    vars(
+      ends_with("_score"),
+      "epinephrine",
+      "dopamine",
+      "norepinephrine",
+      "dobutamine"
+    ),
+    ~ replace(., is.na(.), 0)
+  ) %>%
   mutate(
     psofa_score = coagulation_score + hepatic_score + neurologic_score + renal_score + cardiovascular_score + respiratory_score
+  ) %>%
+  select(
+    child_mrn_uf,
+    encounter,
+    child_birth_date,
+    admit_datetime,
+    dischg_datetime,
+    dischg_disposition,
+    q1hr,
+    epinephrine,
+    dopamine,
+    norepinephrine,
+    dobutamine,
+    on_respiratory_support,
+    ends_with("_score")
   )
+
+filename <- "output/psofa_data"
+write_csv(psofa_data, paste0(filename, ".csv"))
+saveRDS(psofa_data, paste0(filename, ".rds"))
