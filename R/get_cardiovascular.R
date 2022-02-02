@@ -175,7 +175,14 @@ get_cardiovascular <-
           .data$age_group_cardiovascular_score
         )
       ) %>%
-      dplyr::select(.data$child_mrn_uf, .data$q1hr, .data$cardiovascular_score) %>%
+      dplyr::select(
+        .data$child_mrn_uf,
+        .data$q1hr,
+        .data$dopamine,
+        .data$norepinephrine,
+        .data$dobutamine,
+        .data$cardiovascular_score,
+      ) %>%
       dplyr::distinct(.data$child_mrn_uf, .data$q1hr, .keep_all = TRUE)
 
     return(cardiovascular)
