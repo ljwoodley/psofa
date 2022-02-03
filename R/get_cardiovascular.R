@@ -181,6 +181,9 @@ get_cardiovascular <-
         .data$dopamine,
         .data$norepinephrine,
         .data$dobutamine,
+        .data$epinephrine,
+        .data$vasopressin,
+        .data$milrinone,
         .data$cardiovascular_score,
       ) %>%
       dplyr::distinct(.data$child_mrn_uf, .data$q1hr, .keep_all = TRUE)

@@ -97,7 +97,9 @@ psofa_data <- list(
       "epinephrine",
       "dopamine",
       "norepinephrine",
-      "dobutamine"
+      "dobutamine",
+      "vasopressin",
+      "milrinone"
     ),
     ~ replace(., is.na(.), 0)
   ) %>%
@@ -116,10 +118,12 @@ psofa_data <- list(
     dopamine,
     norepinephrine,
     dobutamine,
+    milrinone,
+    vasopressin,
     on_respiratory_support,
     ends_with("_score")
   )
 
 filename <- "output/psofa_data"
-write_csv(psofa_data, paste0(filename, ".csv"))
+# write_csv(psofa_data, paste0(filename, ".csv"))
 saveRDS(psofa_data, paste0(filename, ".rds"))
