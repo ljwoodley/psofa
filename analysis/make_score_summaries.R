@@ -52,7 +52,7 @@ vis_summary <- psofa_data %>%
     vis_epinephrine = 100 * epinephrine,
     vis_norepinephrine = 100 * norepinephrine,
     vis_score = dopamine + dobutamine + vis_milrinone + vis_vasopressin + vis_epinephrine + vis_norepinephrine,
-
+    vis_above_zero = if_else(vis_score > 0, 1, 0)
   ) %>%
   group_by(child_mrn_uf, encounter) %>%
   summarise(
