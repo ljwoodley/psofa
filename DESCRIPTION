@@ -1,7 +1,7 @@
 Package: psofa
 Type: Package
 Title: Calculate pSOFA score
-Version: 0.1.0
+Version: 1.0.0
 Authors@R: c(
   person("Laurence", "James-Woodley", email = "lawjames1@ufl.edu", role = c("aut", "cre")),
   person("Philip", "Chase", email = "pbc@ufl.edu", role = "aut")
