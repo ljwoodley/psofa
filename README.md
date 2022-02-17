@@ -26,7 +26,7 @@ Knit [`data_summary.Rmd`](analysis/data_summary.Rmd) to generate a summary of th
 
 Run [`make_psofa_dataset.R`](analysis/make_psofa_dataset.R) to create pSOFA data products from the raw IDR data. This will output a single file `output/psofa_data.rds` to be consumed by `make_score_summaries.R`.
 
-Run [`make_score_summaries.R`](analysis/make_score_summaries.R) to create and output three CSV datasets of pSOFA Scores, VIS Scores, and drugs into the files `output/psofa_summary.csv`, `output/drug_summary.csv`, and `output/vis_summary.csv`
+Run [`make_score_summaries.R`](analysis/make_score_summaries.R) to create and output three CSV datasets of pSOFA Scores, VIS Scores, and drugs into the files `output/psofa_summary.csv`, `output/drug_dose_summary.csv`, and `output/vis_summary.csv`
 
 
 ## Score Calculation

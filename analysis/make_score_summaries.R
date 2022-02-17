@@ -76,5 +76,5 @@ vis_summary <- psofa_data %>%
   select(-contains("above_zero"))
 
 write_csv(psofa_summary, "output/psofa_summary.csv")
-write_csv(drug_summary, "output/drug_summary.csv")
+write_csv(drug_dose_summary, "output/drug_dose_summary.csv")
 write_csv(vis_summary, "output/vis_summary.csv")
