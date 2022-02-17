@@ -84,9 +84,9 @@ get_cv_by_vasoactive_infusion <-
         .data$med_order_route == 'intravenous' &
           stringr::str_detect(
             .data$med_order_display_name,
-            "dobutamine|dopamine|epinephrine|norepinephrine"
+            "dobutamine|dopamine|epinephrine|norepinephrine|milrinone|vasopressin"
           ) &
-          .data$med_order_discrete_dose_unit == 'mcg/kg/min' &
+          .data$med_order_discrete_dose_unit %in% c('mcg/kg/min','milli-units/kg/min') &
           !is.na(.data$total_dose_character)
       ) %>%
       dplyr::select(
@@ -175,7 +175,17 @@ get_cardiovascular <-
           .data$age_group_cardiovascular_score
         )
       ) %>%
-      dplyr::select(.data$child_mrn_uf, .data$q1hr, .data$cardiovascular_score) %>%
+      dplyr::select(
+        .data$child_mrn_uf,
+        .data$q1hr,
+        .data$dopamine,
+        .data$norepinephrine,
+        .data$dobutamine,
+        .data$epinephrine,
+        .data$vasopressin,
+        .data$milrinone,
+        .data$cardiovascular_score,
+      ) %>%
       dplyr::distinct(.data$child_mrn_uf, .data$q1hr, .keep_all = TRUE)
 
     return(cardiovascular)

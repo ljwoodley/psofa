@@ -1,9 +1,9 @@
 # Pediatric Sequential Organ Failure Assessment (pSOFA) Calculation
 
-### Purpose of Study
+## Purpose of Study
 The Neonatal Sequential Organ Failure Assessment (nSOFA) score predicts mortality risk among preterm septic neonates, however it has yet to be studied in the general neonatal PICU/PCICU population. The pSOFA has shown similar promise to predict PICU sepsis mortality risk at other centers but has yet to be studied in the general PICU/PCICU population. No comparison of utility between the two scoring systems (nSOFA/pSOFA) has been performed in neonates. This study plans to establish a normal range for pSOFA scores across age groups and in the setting of other disease states. It is unknown if the pSOFA can be improved with implementation of different scoring paradigms and inclusion of other data at a more granular level than once per day.
 
-### About the Data
+## About the Data
 A retrospective examination of EHR encounter data of all patients below 22 years of age on admission to the UF Health PICU and PCICU from 1/1/2012 to 07/23/20 was used to calculate the pSOFA score and determine if trends can be identified based on demographic features or clinical outcomes.
 
 Data collected includes all laboratory results (including autopsy reports, radiology/ECHO/ultrasound/MRI results, pathology, microbiology, and clinical specimen testing), daily weights, ins/outs, medications, progress notes, operative notes, discharge summaries, vital signs, cardiopulmonary support and all supportive care beginning at the start of the hospital encounter (e.g. emergency department visit) to death or discharge. 
@@ -14,19 +14,39 @@ The data was acquired from the University of Florida Integrated Data Repository 
 
 The principal investigator on this IRB is James L Wynn. The co-investigators are Lara Nichols and Diomel de la Cruz.
 
-### Analytic Steps
+## Analytic Steps
 
-Once acquired, all of the files in the source_data folder of the pSOFA file repository should be placed in the ./data/picu/ folder of this project to allow the analytic tools to run without modification.
+Once acquired, all of the files in the `source_data` folder of the pSOFA file repository should be placed in the `./data/picu/` folder of this project to allow the analytic tools to run without modification.
 
 Build the psofa package included in this repo. either by running `R CMD INSTALL --preclean --no-multiarch --with-keep.source .` at the root of the repo or using RStudio's Build features.
 
-Run `analysis/make_psofa_dataset.R` to create pSOFA data products from the raw IDR data.
+Knit [`data_summary.Rmd`](analysis/data_summary.Rmd) to generate a summary of the input datasets. This will generate a single, tabbed html file with one tab for each input dataset. Each tab will show summary statistics for each column in the input dataset in a display much like this:
 
-Knit `data_summary.Rmd` to generate a summary of the input datasets.
+![sample data frame summary](images/sample_data_frame_summary.png)
 
-### Score Calculation
+Run [`make_psofa_dataset.R`](analysis/make_psofa_dataset.R) to create pSOFA data products from the raw IDR data. This will output a single file `output/psofa_data.rds` to be consumed by `make_score_summaries.R`.
+
+Run [`make_score_summaries.R`](analysis/make_score_summaries.R) to create and output three CSV datasets of pSOFA Scores, VIS Scores, and drugs into the files `output/psofa_summary.csv`, `output/drug_dose_summary.csv`, and `output/vis_summary.csv`
+
+
+## Score Calculation
+
+### pSOFA Score
 See [pSOFA Components and Scoring](psofa_components_and_scoring.pdf) for the scoring system.
 
-### Developer Notes
+### Vasoactive-Inotropic Score (VIS)
+
+The Vasoactive-Inotropic Score (VIS) is calculated according to this equation.
+
+```
+VIS = dopamine dose (μg/kg/min) +
+      dobutamine dose (μg/kg/min) +
+      10 x milrinone dose (μg/kg/min) +
+      10 x vasopressin dose (mU/kg/min) +
+      100 x epinephrine dose (μg/kg/min) +
+      100 x norepinephrine dose (μg/kg/min)
+```
+
+# Developer Notes
 Software developers who would like to make contributions to this repository should read the [Developer Notes.](developer_notes.md)
 
