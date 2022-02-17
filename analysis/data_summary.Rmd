@@ -19,7 +19,7 @@ library(here)
 ## {.tabset}
 
 ### Child Encounter
-```{r}
+```{r child_encounter}
 child_encounter <- read_csv(here("data", "picu", "PICU-child_encounter_data.csv")) %>%
   clean_names()
 
@@ -28,7 +28,7 @@ includeHTML(view(dfSummary(child_encounter, graph.col = FALSE)))
 ```
 
 ### Labs
-```{r}
+```{r labs}
 labs <- read_csv(here("data", "picu", "PICU-child_labs.csv")) %>%
   clean_names()
 
@@ -36,7 +36,7 @@ includeHTML(view(dfSummary(labs, graph.col = FALSE)))
 ```
 
 ### Medications
-```{r}
+```{r medications}
 medications <- read_csv(here("data", "picu", "PICU-child_medications.csv")) %>%
   clean_names()
 
@@ -44,7 +44,7 @@ includeHTML(view(dfSummary(medications, graph.col = FALSE)))
 ```
 
 ### Flowsheets
-```{r}
+```{r flowsheets}
 flowsheets <- read_csv(here("data", "picu", "PICU-child_flowsheets.csv")) %>%
   clean_names()
 
