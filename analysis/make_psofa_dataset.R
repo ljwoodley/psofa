@@ -4,6 +4,9 @@ library(lubridate)
 library(psofa)
 library(here)
 
+# identify cohort of interest. e.g picu/pcicu/nicu
+cohort <- "pcicu"
+
 categorized_respiratory_devices <- readxl::read_excel(here(
     "output",
     "categorized_respiratory_devices_2021-09-24-JLW.xlsx"
@@ -11,8 +14,9 @@ categorized_respiratory_devices <- readxl::read_excel(here(
   sheet = 4) %>%
   filter(on_resp_support == 0)
 
-read_child_encounter <- read_csv(here("data", "picu", "ctsit_child_encounter.csv")) %>%
-  clean_names()
+read_child_encounter <- read_csv(here("data", cohort, "encounter.csv")) %>%
+  clean_names() %>%
+  filter(!is.na(dischg_datetime))
 
 child_encounter <- get_child_encounter(read_child_encounter)
 
@@ -23,20 +27,20 @@ expanded_child_encounter <- child_encounter$expanded_child_encounter
 child_dob <- read_child_encounter %>%
   distinct(child_mrn_uf, child_birth_date)
 
-read_child_labs <- read_csv(here("data", "picu", "PICU-child_labs.csv")) %>%
+read_child_labs <- read_csv(here("data", cohort, "labs.csv")) %>%
   clean_names() %>%
   filter(child_mrn_uf %in% transformed_child_encounter$child_mrn_uf) %>%
   mutate_if(is.character, tolower)
 
-read_glasgow <- read_csv(here("data", "picu", "Child_Glasgow_PICU.csv")) %>%
+read_glasgow <- read_csv(here("data", cohort, "glasgow.csv")) %>%
   clean_names()
 
-read_flowsheets <- read_csv(here("data", "picu", "PICU-child_flowsheets.csv")) %>%
+read_flowsheets <- read_csv(here("data", cohort, "flowsheets.csv")) %>%
   clean_names() %>%
   filter(child_mrn_uf %in% transformed_child_encounter$child_mrn_uf) %>%
   mutate_if(is.character, tolower)
 
-read_medications <- read_csv(here("data", "picu", "PICU-child_medications.csv")) %>%
+read_medications <- read_csv(here("data", cohort, "medications.csv")) %>%
   clean_names() %>%
   filter(child_mrn_uf %in% transformed_child_encounter$child_mrn_uf) %>%
   mutate_if(is.character, tolower)
@@ -124,6 +128,4 @@ psofa_data <- list(
     ends_with("_score")
   )
 
-filename <- "output/psofa_data"
-# write_csv(psofa_data, paste0(filename, ".csv"))
-saveRDS(psofa_data, paste0(filename, ".rds"))
+saveRDS(psofa_data, here("output", cohort, str_c(cohort, "_psofa_data.rds")))

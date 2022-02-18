@@ -1,10 +1,14 @@
 library(tidyverse)
+library(here)
 
-psofa_data <- read_rds("output/psofa_data.rds")
+# identify cohort of interest. e.g picu/pcicu/nicu
+cohort <- "pcicu"
+
+psofa_data <- read_rds(here("output", cohort, str_c(cohort, "_psofa_data.rds")))
 
 psofa_summary <- psofa_data %>%
   mutate(psofa_above_zero = if_else(psofa_score > 0, 1, 0)) %>%
-  group_by(child_mrn_uf, encounter) %>%
+  group_by(child_mrn_uf, encounter, admit_datetime, dischg_datetime, dischg_disposition) %>%
   summarise(
     across(ends_with("_score"), list(max = max, sum = sum), .names = "{.col}_{fn}"),
     num_hours_psofa_above_zero = sum(psofa_above_zero),
@@ -20,7 +24,7 @@ psofa_summary <- psofa_data %>%
 drug_dose_summary <- psofa_data %>%
   mutate(total_dosage = dopamine + dobutamine + milrinone + vasopressin + epinephrine + norepinephrine,
          dosage_above_zero = if_else(total_dosage > 0, 1, 0)) %>%
-  group_by(child_mrn_uf, encounter) %>%
+  group_by(child_mrn_uf, encounter, admit_datetime, dischg_datetime, dischg_disposition) %>%
   summarise(
     across(
       c(dopamine,
@@ -54,7 +58,7 @@ vis_summary <- psofa_data %>%
     vis_score = dopamine + dobutamine + vis_milrinone + vis_vasopressin + vis_epinephrine + vis_norepinephrine,
     vis_above_zero = if_else(vis_score > 0, 1, 0)
   ) %>%
-  group_by(child_mrn_uf, encounter) %>%
+  group_by(child_mrn_uf, encounter, admit_datetime, dischg_datetime, dischg_disposition) %>%
   summarise(
     across(
       c(dopamine,
@@ -75,6 +79,7 @@ vis_summary <- psofa_data %>%
   ) %>%
   select(-contains("above_zero"))
 
-write_csv(psofa_summary, "output/psofa_summary.csv")
-write_csv(drug_dose_summary, "output/drug_dose_summary.csv")
-write_csv(vis_summary, "output/vis_summary.csv")
+write_csv(psofa_summary, here("output", cohort, str_c(cohort, "_psofa_summary.csv")))
+write_csv(drug_dose_summary, here("output", cohort, str_c(cohort, "_drug_dose_summary.csv")))
+write_csv(vis_summary, here("output", cohort, str_c(cohort, "_vis_summary.csv")))
+
