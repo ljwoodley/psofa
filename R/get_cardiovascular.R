@@ -74,7 +74,8 @@ align_drug_start_end_time <- function(vasoactive_infusions) {
 #' @param read_medications the raw medications data obtained from the IDR
 #' @param expanded_child_encounter a df returned by \code{\link{get_child_encounter}}
 #'
-#' @return A data frame with the calculated cardiovascular score based on vasoactive infusions
+#' @return A list containing the calculated cardiovascular score based on vasoactive infusions
+#'         and the hourly drug dosages
 #' @export
 get_cv_by_vasoactive_infusion <-
   function(read_medications,
@@ -123,16 +124,26 @@ get_cv_by_vasoactive_infusion <-
         by = c("child_mrn_uf", "q1hr")
       ) %>%
       # time that drug ended cannot occur before patient was admitted
-      dplyr::filter(.data$q1hr <= .data$med_order_end_datetime) %>%
+      dplyr::filter(.data$q1hr <= .data$med_order_end_datetime)
+
+    q1hr_drug_dosages <- vasoactive_infusions %>%
+      dplyr::group_by(.data$child_mrn_uf,
+                      .data$med_order_display_name,
+                      .data$q1hr) %>%
+      dplyr::slice_max(.data$total_dose_character, with_ties = FALSE) %>%
+      tidyr::pivot_wider(
+        names_from = .data$med_order_display_name,
+        values_from = .data$total_dose_character
+      )
+
+    cv_by_vasoactive_infusion <- vasoactive_infusions %>%
       dplyr::group_split(
         .data$child_mrn_uf,
         .data$encounter,
         .data$med_order_display_name,
         .data$med_order_end_datetime
-      )
-
-    cv_by_vasoactive_infusion <-
-      purrr::map_df(vasoactive_infusions, align_drug_start_end_time) %>%
+      ) %>%
+      purrr::map_df(., align_drug_start_end_time) %>%
       dplyr::group_by(.data$child_mrn_uf,
                       .data$med_order_display_name,
                       .data$q1hr) %>%
@@ -152,7 +163,7 @@ get_cv_by_vasoactive_infusion <-
         )
       )
 
-    return(cv_by_vasoactive_infusion)
+    return(dplyr::lst(q1hr_drug_dosages, cv_by_vasoactive_infusion))
   }
 
 #' Joins the age group and vasoactive infusion cardiovascular datasets
