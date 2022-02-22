@@ -35,7 +35,7 @@ Run [`make_psofa_dataset.R`](analysis/make_psofa_dataset.R) to create pSOFA data
 
 Run [`make_score_summaries.R`](analysis/make_score_summaries.R) to create and output three CSV datasets of pSOFA Scores, VIS Scores, and drugs into the files `output/<cohort>/<cohort>_psofa_summary.csv`, `output/<cohort>/<cohort>_drug_dose_summary.csv`, and `output/<cohort>/<cohort>_vis_summary.csv`
 
-`analysis/adhoc/` contains scripts created for specific purposes.
+`analysis/adhoc/` contains scripts created for user specific purposes.
 
 __The user has the option to specify the cohort of interest in [`make_psofa_dataset.R`](analysis/make_psofa_dataset.R) and [`make_score_summaries.R`](analysis/make_score_summaries.R).__
 
