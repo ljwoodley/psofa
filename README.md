@@ -10,13 +10,20 @@ Data collected includes all laboratory results (including autopsy reports, radio
 
 These data were used to calculate the pSOFA score at q1 hour granularity by unit designation (PICU, PCICU) based on clinical parameters including the need for mechanical ventilation, oxygen requirement, requirement for cardiovascular support in the form of vasoactive drugs, and the presence of thrombocytopenia, renal function, neurologic status, and then averaging the score for each patient across different time intervals.
 
-The data was acquired from the University of Florida Integrated Data Repository under the aegis of IRB #202001996. The data is not accessible for public use due to PHI restrictions. For developers that have been granted access to this data please contact [James Wynn](james.wynn@peds.ufl.edu), [Philip Chase](pbc@ufl.edu) or [Laurence James-Woodley](lawjames1@ufl.edu) for the data download link.
+The data was acquired from the University of Florida Integrated Data Repository (IDR) under the aegis of IRB #202001996. The data is not accessible for public use due to PHI restrictions. For developers that have been granted access to this data please contact [James Wynn](james.wynn@peds.ufl.edu), [Philip Chase](pbc@ufl.edu) or [Laurence James-Woodley](lawjames1@ufl.edu) for access to the IDR `source_data` folder of the pSOFA file repository.
 
 The principal investigator on this IRB is James L Wynn. The co-investigators are Lara Nichols and Diomel de la Cruz.
 
 ## Analytic Steps
-
-Once acquired, all of the files in the `source_data` folder of the pSOFA file repository should be placed in the `./data/picu/` folder of this project to allow the analytic tools to run without modification.
+This project is capable of generating pSOFA scores and summary files for any of `picu`, `pcicu` and `nicu` cohorts. For the script to run on a specific cohort the following files are required:
+```
+encounter.csv
+flowsheets.csv
+glasgow.csv       # Not needed for NICU cohort
+labs.csv
+medications.csv
+```
+Once acquired, all of the files in the `source_data` folder of the pSOFA file repository, for a given cohort, should be placed in the `./data/<cohort>/` folder of this project to allow the analytic tools to run without modification.
 
 Build the psofa package included in this repo. either by running `R CMD INSTALL --preclean --no-multiarch --with-keep.source .` at the root of the repo or using RStudio's Build features.
 
@@ -24,10 +31,13 @@ Knit [`data_summary.Rmd`](analysis/data_summary.Rmd) to generate a summary of th
 
 ![sample data frame summary](images/sample_data_frame_summary.png)
 
-Run [`make_psofa_dataset.R`](analysis/make_psofa_dataset.R) to create pSOFA data products from the raw IDR data. This will output a single file `output/psofa_data.rds` to be consumed by `make_score_summaries.R`.
+Run [`make_psofa_dataset.R`](analysis/make_psofa_dataset.R) to create pSOFA data products from the raw IDR data. This will output a single file `output/<cohort>/<cohort>_psofa_data.rds` to be consumed by `make_score_summaries.R`. 
 
-Run [`make_score_summaries.R`](analysis/make_score_summaries.R) to create and output three CSV datasets of pSOFA Scores, VIS Scores, and drugs into the files `output/psofa_summary.csv`, `output/drug_dose_summary.csv`, and `output/vis_summary.csv`
+Run [`make_score_summaries.R`](analysis/make_score_summaries.R) to create and output three CSV datasets of pSOFA Scores, VIS Scores, and drugs into the files `output/<cohort>/<cohort>_psofa_summary.csv`, `output/<cohort>/<cohort>_drug_dose_summary.csv`, and `output/<cohort>/<cohort>_vis_summary.csv`
 
+`analysis/adhoc/` contains scripts created for specific purposes.
+
+__The user has the option to specify the cohort of interest in [`make_psofa_dataset.R`](analysis/make_psofa_dataset.R) and [`make_score_summaries.R`](analysis/make_score_summaries.R).__
 
 ## Score Calculation
 
