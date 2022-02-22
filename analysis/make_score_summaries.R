@@ -5,7 +5,7 @@ library(here)
 cohort <- "nicu"
 
 psofa_data <- read_rds(here("output", cohort, str_c(cohort, "_psofa_data.rds")))
-q1hr_drug_dosages <- read_rds(here("output", cohort, str_c(cohort, "q1hr_drug_dosages.rds")))
+q1hr_drug_dosages <- read_rds(here("output", cohort, str_c(cohort, "_q1hr_drug_dosages.rds")))
 
 
 psofa_summary <- psofa_data %>%
