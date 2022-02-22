@@ -5,7 +5,7 @@ library(psofa)
 library(here)
 
 # identify cohort of interest. e.g picu/pcicu/nicu
-cohort <- "picu"
+cohort <- "nicu"
 
 categorized_respiratory_devices <- readxl::read_excel(here(
     "output",
@@ -63,7 +63,10 @@ renal <- get_renal(read_child_labs, child_dob)
 
 cv_by_age_group <- get_cv_by_age_group(read_flowsheets, child_dob)
 
-cv_by_vasoactive_infusion <- get_cv_by_vasoactive_infusion(read_medications, expanded_child_encounter)
+vasoactive_infusion <- get_cv_by_vasoactive_infusion(read_medications, expanded_child_encounter)
+
+cv_by_vasoactive_infusion <- vasoactive_infusion$cv_by_vasoactive_infusion
+q1hr_drug_dosages <- vasoactive_infusion$q1hr_drug_dosages
 
 cardiovascular <- get_cardiovascular(cv_by_age_group, cv_by_vasoactive_infusion)
 
@@ -137,3 +140,4 @@ psofa_data <- list(
   )
 
 saveRDS(psofa_data, here("output", cohort, str_c(cohort, "_psofa_data.rds")))
+saveRDS(q1hr_drug_dosages, here("output", cohort, str_c(cohort, "_q1hr_drug_dosages.rds")))

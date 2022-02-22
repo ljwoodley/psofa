@@ -2,9 +2,11 @@ library(tidyverse)
 library(here)
 
 # identify cohort of interest. e.g picu/pcicu/nicu
-cohort <- "picu"
+cohort <- "nicu"
 
 psofa_data <- read_rds(here("output", cohort, str_c(cohort, "_psofa_data.rds")))
+q1hr_drug_dosages <- read_rds(here("output", cohort, str_c(cohort, "q1hr_drug_dosages.rds")))
+
 
 psofa_summary <- psofa_data %>%
   mutate(psofa_above_zero = if_else(psofa_score > 0, 1, 0)) %>%
@@ -79,7 +81,28 @@ vis_summary <- psofa_data %>%
   ) %>%
   select(-contains("above_zero"))
 
+q1hr_drug_dosage_summary <- q1hr_drug_dosages %>%
+  select(-med_order_end_datetime) %>%
+  mutate_at(
+    vars(
+      "epinephrine",
+      "dopamine",
+      "norepinephrine",
+      "dobutamine",
+      "vasopressin",
+      "milrinone"
+    ),
+    ~ replace(., is.na(.), 0)
+  ) %>%
+  mutate(
+    vis_milrinone = 10 * milrinone,
+    vis_vasopressin = 10 * vasopressin,
+    vis_epinephrine = 100 * epinephrine,
+    vis_norepinephrine = 100 * norepinephrine,
+    vis_score = dopamine + dobutamine + vis_milrinone + vis_vasopressin + vis_epinephrine + vis_norepinephrine
+  )
+
 write_csv(psofa_summary, here("output", cohort, str_c(cohort, "_psofa_summary.csv")))
 write_csv(drug_dose_summary, here("output", cohort, str_c(cohort, "_drug_dose_summary.csv")))
 write_csv(vis_summary, here("output", cohort, str_c(cohort, "_vis_summary.csv")))
-
+write_csv(q1hr_drug_dosage_summary, here("output", cohort, str_c(cohort, "_q1hr_drug_dosage_summary.csv")))
