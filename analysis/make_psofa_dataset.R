@@ -5,7 +5,7 @@ library(psofa)
 library(here)
 
 # identify cohort of interest. e.g picu/pcicu/nicu
-cohort <- "pcicu"
+cohort <- "picu"
 
 categorized_respiratory_devices <- readxl::read_excel(here(
     "output",

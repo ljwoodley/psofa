@@ -2,7 +2,7 @@ library(tidyverse)
 library(here)
 
 # identify cohort of interest. e.g picu/pcicu/nicu
-cohort <- "pcicu"
+cohort <- "picu"
 
 psofa_data <- read_rds(here("output", cohort, str_c(cohort, "_psofa_data.rds")))
 
