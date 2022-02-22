@@ -32,8 +32,10 @@ read_child_labs <- read_csv(here("data", cohort, "labs.csv")) %>%
   filter(child_mrn_uf %in% transformed_child_encounter$child_mrn_uf) %>%
   mutate_if(is.character, tolower)
 
+if (cohort != 'nicu') {
 read_glasgow <- read_csv(here("data", cohort, "glasgow.csv")) %>%
   clean_names()
+}
 
 read_flowsheets <- read_csv(here("data", cohort, "flowsheets.csv")) %>%
   clean_names() %>%
@@ -49,7 +51,13 @@ coagulation <- get_coagulation(read_child_labs)
 
 hepatic <- get_hepatic(read_child_labs)
 
+if (cohort != 'nicu') {
 neurologic <- get_neurologic(read_glasgow)
+} else {
+  neurologic <- tibble(child_mrn_uf = NA_integer_,
+                       q1hr = NA_POSIXct_,
+                       neurologic_score = NA_integer_)
+}
 
 renal <- get_renal(read_child_labs, child_dob)
 
