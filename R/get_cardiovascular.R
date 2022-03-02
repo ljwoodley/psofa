@@ -127,6 +127,7 @@ get_cv_by_vasoactive_infusion <-
       dplyr::filter(.data$q1hr <= .data$med_order_end_datetime)
 
     q1hr_drug_dosages <- vasoactive_infusions %>%
+      dplyr::select(-.data$med_order_end_datetime) %>%
       dplyr::group_by(.data$child_mrn_uf,
                       .data$med_order_display_name,
                       .data$q1hr) %>%
@@ -158,7 +159,8 @@ get_cv_by_vasoactive_infusion <-
           .data$dopamine > 15 |
             .data$epinephrine > 0.1 | .data$norepinephrine > 0.1 ~ 4,
           .data$dopamine > 5 |
-            .data$epinephrine <= 0.1 | .data$norepinephrine <= 0.1 ~ 3,
+            (.data$epinephrine > 0 & .data$epinephrine <= 0.1) |
+            (.data$norepinephrine > 0 & .data$norepinephrine <= 0.1) ~ 3,
           .data$dopamine > 0 | .data$dobutamine > 0 ~ 2
         )
       )

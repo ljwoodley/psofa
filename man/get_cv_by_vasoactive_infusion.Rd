@@ -12,7 +12,7 @@ get_cv_by_vasoactive_infusion(read_medications, expanded_child_encounter)
 \item{expanded_child_encounter}{a df returned by \code{\link{get_child_encounter}}}
 }
 \value{
-A list the calculated cardiovascular score based on vasoactive infusions
+A list containing the calculated cardiovascular score based on vasoactive infusions
 and the hourly drug dosages
 }
 \description{
