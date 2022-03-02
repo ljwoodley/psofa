@@ -82,7 +82,6 @@ vis_summary <- psofa_data %>%
   select(-contains("above_zero"))
 
 q1hr_drug_dosage_summary <- q1hr_drug_dosages %>%
-  select(-med_order_end_datetime) %>%
   mutate_at(
     vars(
       "epinephrine",
