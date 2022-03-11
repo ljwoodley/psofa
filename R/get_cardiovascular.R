@@ -100,14 +100,21 @@ get_cv_by_vasoactive_infusion <-
         .data$med_order_end_datetime
       ) %>%
       dplyr::mutate(
-        med_order_display_name = stringr::word(.data$med_order_display_name, 1),
         q1hr = lubridate::floor_date(.data$take_datetime, "1hour"),
         med_order_end_datetime = lubridate::floor_date(.data$med_order_end_datetime, "1hour")
       ) %>%
       dplyr::group_by(.data$child_mrn_uf,
                       .data$med_order_display_name,
                       .data$q1hr) %>%
-      dplyr::slice_max(.data$total_dose_character, with_ties = FALSE) %>%
+      # if the last score recorded within an hour is 0 keep that as
+      # it signifies that the drug was ended.
+      # Otherwise keep the highest value within an hour
+      mutate(score_priority = case_when(
+        .data$take_datetime == max(.data$take_datetime) & .data$total_dose_character == 0 ~ 3,
+        .data$total_dose_character == max(.data$total_dose_character) ~ 2,
+        TRUE ~ 1
+      )) %>%
+      dplyr::slice_max(.data$score_priority, with_ties = FALSE) %>%
       dplyr::arrange(.data$child_mrn_uf, .data$q1hr) %>%
       dplyr::select(
         .data$child_mrn_uf,
@@ -123,19 +130,13 @@ get_cv_by_vasoactive_infusion <-
           dplyr::select(.data$child_mrn_uf, .data$q1hr, .data$encounter),
         by = c("child_mrn_uf", "q1hr")
       ) %>%
+      # Check for volume changes within a minute for a given drug
+      group_by(child_mrn_uf, q1hr, med_order_display_name) %>%
+      mutate(med_order_display_name = stringr::word(.data$med_order_display_name, 1)) %>%
+      slice_max(total_dose_character, with_ties = FALSE) %>%
+      ungroup() %>%
       # time that drug ended cannot occur before patient was admitted
       dplyr::filter(.data$q1hr <= .data$med_order_end_datetime)
-
-    q1hr_drug_dosages <- vasoactive_infusions %>%
-      dplyr::select(-.data$med_order_end_datetime) %>%
-      dplyr::group_by(.data$child_mrn_uf,
-                      .data$med_order_display_name,
-                      .data$q1hr) %>%
-      dplyr::slice_max(.data$total_dose_character, with_ties = FALSE) %>%
-      tidyr::pivot_wider(
-        names_from = .data$med_order_display_name,
-        values_from = .data$total_dose_character
-      )
 
     cv_by_vasoactive_infusion <- vasoactive_infusions %>%
       dplyr::group_split(
@@ -165,7 +166,7 @@ get_cv_by_vasoactive_infusion <-
         )
       )
 
-    return(dplyr::lst(q1hr_drug_dosages, cv_by_vasoactive_infusion))
+    return(cv_by_vasoactive_infusion)
   }
 
 #' Joins the age group and vasoactive infusion cardiovascular datasets
