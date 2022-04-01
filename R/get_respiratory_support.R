@@ -367,6 +367,10 @@ get_respiratory <-
         respiratory_score = dplyr::coalesce(.data$pao2_fio2_resp_score, .data$spo2_fio2_resp_score)
       ) %>%
       dplyr::mutate_at("respiratory_score", ~ replace(., is.na(.), 0)) %>%
+      dplyr::group_by(.data$child_mrn_uf, .data$q1hr) %>%
+      #  Prevents multiple respiratory scores from being created for subjects that
+      # were tagged as having multiple encounters when they simply moved between units.
+      dplyr::slice_max(.data$respiratory_score, with_ties = FALSE) %>%
       dplyr::ungroup() %>%
       dplyr::select(.data$child_mrn_uf, .data$q1hr, .data$respiratory_score, .data$on_respiratory_support)
 
