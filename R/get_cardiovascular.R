@@ -112,6 +112,7 @@ get_cv_by_vasoactive_infusion <- function(read_medications, expanded_child_encou
           dplyr::select(.data$child_mrn_uf, .data$q1hr, .data$encounter, .data$dischg_disposition),
         by = c("child_mrn_uf", "q1hr")
       ) %>%
+      dplyr::arrange(.data$child_mrn_uf, .data$q1hr) %>%
       dplyr::group_by(.data$child_mrn_uf, .data$encounter) %>%
       tidyr::fill(c(
              .data$epinephrine,
