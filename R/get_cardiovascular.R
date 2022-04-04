@@ -54,86 +54,98 @@ get_cv_by_age_group <- function(read_flowsheets, child_dob) {
 #' @return A df containing the calculated cardiovascular score based on vasoactive infusions
 #' @export
 get_cv_by_vasoactive_infusion <- function(read_medications, expanded_child_encounter) {
-    cv_by_vasoactive_infusion <- read_medications %>%
-      dplyr::filter(
-        .data$med_order_route == 'intravenous' &
-          stringr::str_detect(
-            .data$med_order_display_name,
-            "dobutamine|dopamine|epinephrine|norepinephrine|milrinone|vasopressin"
-          ) &
-          .data$med_order_discrete_dose_unit %in% c('mcg/kg/min','milli-units/kg/min') &
-          !is.na(.data$total_dose_character) &
-          !.data$mar_action %in% c("missed", "mar hold", "canceled entry")
-      ) %>%
-      dplyr::select(
-        .data$child_mrn_uf,
-        .data$med_order_route,
-        .data$med_order_display_name,
-        .data$take_datetime,
-        .data$total_dose_character,
-        .data$med_order_discrete_dose_unit,
-        .data$med_order_end_datetime,
-        .data$mar_action
-      ) %>%
-      dplyr::mutate(
-        q1hr = lubridate::floor_date(.data$take_datetime, "1hour"),
-        med_order_end_datetime = lubridate::floor_date(.data$med_order_end_datetime, "1hour")
-      ) %>%
-      dplyr::group_by(.data$child_mrn_uf,
-                      .data$med_order_display_name,
-                      .data$q1hr) %>%
-      # if the last score recorded within an hour is 0 keep that as
-      # it signifies that the drug was ended.
-      # Otherwise keep the highest value within an hour
-      dplyr::mutate(score_priority = dplyr::case_when(
-        .data$take_datetime == max(.data$take_datetime) & .data$total_dose_character == 0 ~ 3,
-        .data$total_dose_character == max(.data$total_dose_character) ~ 2,
-        TRUE ~ 1
+  cv_by_vasoactive_infusion <- read_medications %>%
+    dplyr::filter(
+      .data$med_order_route == 'intravenous' &
+        stringr::str_detect(
+          .data$med_order_display_name,
+          "dobutamine|dopamine|epinephrine|norepinephrine|milrinone|vasopressin"
+        ) &
+        .data$med_order_discrete_dose_unit %in% c('mcg/kg/min','milli-units/kg/min') &
+        !is.na(.data$total_dose_character) &
+        !.data$mar_action %in% c("missed", "mar hold", "canceled entry")
+    ) %>%
+    dplyr::select(
+      .data$child_mrn_uf,
+      .data$med_order_route,
+      .data$med_order_display_name,
+      .data$take_datetime,
+      .data$total_dose_character,
+      .data$med_order_discrete_dose_unit,
+      .data$med_order_end_datetime,
+      .data$mar_action
+    ) %>%
+    dplyr::mutate(
+      q1hr = lubridate::floor_date(.data$take_datetime, "1hour"),
+      med_order_end_datetime = lubridate::floor_date(.data$med_order_end_datetime, "1hour")
+    ) %>%
+    dplyr::group_by(.data$child_mrn_uf,
+                    .data$med_order_display_name,
+                    .data$q1hr) %>%
+    # if the last score recorded within an hour is 0 keep that as
+    # it signifies that the drug was ended.
+    # Otherwise keep the highest value within an hour
+    dplyr::mutate(score_priority = dplyr::case_when(
+      .data$take_datetime == max(.data$take_datetime) & .data$total_dose_character == 0 ~ 3,
+      .data$total_dose_character == max(.data$total_dose_character) ~ 2,
+      TRUE ~ 1
+    )) %>%
+    dplyr::slice_max(.data$score_priority, with_ties = FALSE) %>%
+    dplyr::arrange(.data$child_mrn_uf, .data$q1hr) %>%
+    dplyr::filter(!is.na(.data$med_order_end_datetime)) %>%
+    dplyr::select(
+      .data$child_mrn_uf,
+      .data$med_order_display_name,
+      .data$q1hr,
+      .data$total_dose_character,
+    ) %>%
+    # Check for volume changes within a minute for a given drug
+    dplyr::mutate(med_order_display_name = stringr::word(.data$med_order_display_name, 1)) %>%
+    dplyr::slice_max(.data$total_dose_character, with_ties = FALSE) %>%
+    dplyr::left_join(
+      expanded_child_encounter %>%
+        dplyr::select(.data$child_mrn_uf, .data$q1hr, .data$encounter, .data$dischg_disposition),
+      by = c("child_mrn_uf", "q1hr")
+    ) %>%
+    dplyr::group_by(.data$child_mrn_uf, .data$med_order_display_name, .data$dischg_disposition, .data$encounter) %>%
+    # if the last recorded drug dose is non-zero and the subject was discharged to home
+    # then set the dose to 0
+    mutate(
+      total_dose_character = if_else(
+        dplyr::row_number() == dplyr::n() &
+          .data$dischg_disposition %in% c("TO HOME", "TO HOMECARE"),
+        0,
+        .data$total_dose_character
+      )
+    ) %>%
+    dplyr::group_by(.data$child_mrn_uf, .data$q1hr) %>%
+    tidyr::pivot_wider(
+      names_from = .data$med_order_display_name,
+      values_from = .data$total_dose_character
+    ) %>%
+    dplyr::arrange(.data$child_mrn_uf, .data$q1hr) %>%
+    dplyr::group_by(.data$child_mrn_uf, .data$encounter) %>%
+    tidyr::fill(c(
+      .data$epinephrine,
+      .data$dopamine,
+      .data$norepinephrine,
+      .data$dobutamine,
+      .data$vasopressin,
+      .data$milrinone
+    ),
+    .direction = "down"
+    ) %>%
+    dplyr::mutate(
+      vasoactive_cardiovascular_score = dplyr::case_when(
+        .data$dopamine > 15 |
+          .data$epinephrine > 0.1 | .data$norepinephrine > 0.1 ~ 4,
+        .data$dopamine > 5 |
+          (.data$epinephrine > 0 & .data$epinephrine <= 0.1) |
+          (.data$norepinephrine > 0 & .data$norepinephrine <= 0.1) ~ 3,
+        .data$dopamine > 0 | .data$dobutamine > 0 ~ 2,
+        TRUE ~ NA_real_
       )) %>%
-      dplyr::slice_max(.data$score_priority, with_ties = FALSE) %>%
-      dplyr::arrange(.data$child_mrn_uf, .data$q1hr) %>%
-      dplyr::filter(!is.na(.data$med_order_end_datetime)) %>%
-      dplyr::select(
-        .data$child_mrn_uf,
-        .data$med_order_display_name,
-        .data$q1hr,
-        .data$total_dose_character,
-      ) %>%
-      # Check for volume changes within a minute for a given drug
-      dplyr::mutate(med_order_display_name = stringr::word(.data$med_order_display_name, 1)) %>%
-      dplyr::slice_max(.data$total_dose_character, with_ties = FALSE) %>%
-      dplyr::group_by(.data$child_mrn_uf, .data$q1hr) %>%
-      tidyr::pivot_wider(
-        names_from = .data$med_order_display_name,
-        values_from = .data$total_dose_character
-      ) %>%
-      dplyr::left_join(
-        expanded_child_encounter %>%
-          dplyr::select(.data$child_mrn_uf, .data$q1hr, .data$encounter, .data$dischg_disposition),
-        by = c("child_mrn_uf", "q1hr")
-      ) %>%
-      dplyr::arrange(.data$child_mrn_uf, .data$q1hr) %>%
-      dplyr::group_by(.data$child_mrn_uf, .data$encounter) %>%
-      tidyr::fill(c(
-             .data$epinephrine,
-             .data$dopamine,
-             .data$norepinephrine,
-             .data$dobutamine,
-             .data$vasopressin,
-             .data$milrinone
-             ),
-           .direction = "down"
-           ) %>%
-      dplyr::mutate(
-        vasoactive_cardiovascular_score = dplyr::case_when(
-          .data$dopamine > 15 |
-            .data$epinephrine > 0.1 | .data$norepinephrine > 0.1 ~ 4,
-          .data$dopamine > 5 |
-            (.data$epinephrine > 0 & .data$epinephrine <= 0.1) |
-            (.data$norepinephrine > 0 & .data$norepinephrine <= 0.1) ~ 3,
-          .data$dopamine > 0 | .data$dobutamine > 0 ~ 2,
-          TRUE ~ NA_real_
-        ))
+    dplyr::ungroup()
 
     return(cv_by_vasoactive_infusion)
   }
@@ -159,6 +171,7 @@ get_cardiovascular <- function(cv_by_age_group, cv_by_vasoactive_infusion) {
       dplyr::select(
         .data$child_mrn_uf,
         .data$q1hr,
+        .data$age_in_months,
         .data$dopamine,
         .data$norepinephrine,
         .data$dobutamine,
