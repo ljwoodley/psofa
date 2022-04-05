@@ -31,13 +31,19 @@ Knit [`data_summary.Rmd`](analysis/data_summary.Rmd) to generate a summary of th
 
 ![sample data frame summary](images/sample_data_frame_summary.png)
 
-Run [`make_psofa_dataset.R`](analysis/make_psofa_dataset.R) to create pSOFA data products from the raw IDR data. This will output a single file `output/<cohort>/<cohort>_psofa_data.rds` to be consumed by `make_score_summaries.R`. 
+Run [`make_psofa_dataset.R`](analysis/make_psofa_dataset.R) to create pSOFA data products from the raw IDR data. These data products are hourly psofa scores,
+summary psofa scores, cardiovascular score at discharge and vasoactive-inotropic score at discharge. All outputs are stored in 
 
-Run [`make_score_summaries.R`](analysis/make_score_summaries.R) to create and output three CSV datasets of pSOFA Scores, VIS Scores, and drugs into the files `output/<cohort>/<cohort>_psofa_summary.csv`, `output/<cohort>/<cohort>_drug_dose_summary.csv`, and `output/<cohort>/<cohort>_vis_summary.csv`
+```
+output/<cohort>/<cohort>_psofa_data_<date>.csv
+output/<cohort>/<cohort>_psofa_summary_<date>.csv
+output/<cohort>/<cohort>_cv_greater_than_zero_at_discharge_<date>.csv
+output/<cohort>/<cohort>_vis_greater_than_zero_at_discharge_<date>.csv
+```
 
 `analysis/adhoc/` contains scripts created for user specific purposes.
 
-__The user has the option to specify the cohort of interest in [`make_psofa_dataset.R`](analysis/make_psofa_dataset.R) and [`make_score_summaries.R`](analysis/make_score_summaries.R).__
+__The user has the option to specify the cohort of interest in [`make_psofa_dataset.R`](analysis/make_psofa_dataset.R).__
 
 ## Score Calculation
 
