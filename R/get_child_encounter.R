@@ -71,6 +71,7 @@ get_child_encounter <- function(read_child_encounter) {
     ) %>%
     dplyr::ungroup() %>%
     dplyr::arrange(.data$child_mrn_uf, .data$encounter, .data$q1hr) %>%
+    dplyr::mutate(age_at_admission = lubridate::interval(.data$child_birth_date, .data$admit_datetime) %/% years(1)) %>%
     # prevent duplicated q1hr when the dischg_datetime from the nth encounter overlaps
     # with the dischg_datetime from the nth + 1 encounter
     dplyr::distinct(.data$child_mrn_uf, .data$q1hr, .keep_all = TRUE)
