@@ -110,8 +110,8 @@ get_cv_by_vasoactive_infusion <- function(read_medications, expanded_child_encou
     dplyr::group_by(.data$child_mrn_uf, .data$med_order_display_name, .data$dischg_disposition, .data$encounter) %>%
     # if the last recorded drug dose is non-zero and the subject was discharged to home
     # then set the dose to 0
-    mutate(
-      total_dose_character = if_else(
+    dplyr::mutate(
+      total_dose_character = dplyr::if_else(
         dplyr::row_number() == dplyr::n() &
           .data$dischg_disposition %in% c("TO HOME", "TO HOMECARE"),
         0,
