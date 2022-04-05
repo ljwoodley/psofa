@@ -171,7 +171,6 @@ get_cardiovascular <- function(cv_by_age_group, cv_by_vasoactive_infusion) {
       dplyr::select(
         .data$child_mrn_uf,
         .data$q1hr,
-        .data$age_in_months,
         .data$dopamine,
         .data$norepinephrine,
         .data$dobutamine,
