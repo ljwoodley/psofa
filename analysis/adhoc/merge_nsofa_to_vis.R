@@ -6,7 +6,6 @@ library(lubridate)
 cohort <- "nicu"
 
 nsofa_data <- read_csv(here("data", cohort, "nsofa_score_2020-07-10.csv"))
-nicu_term_mrns <- read_excel(here("data", cohort, "NICU-term MRNs for pSOFA.xlsx"))
 nicu_psofa_data <- read_rds(here("output", cohort, "nicu_psofa_data_2022-04-07.rds"))
 
 vis_scores <- nicu_psofa_data %>%
@@ -16,11 +15,10 @@ vis_scores <- nicu_psofa_data %>%
          starts_with("dose"),
          starts_with("vis"))
 
-nicu_term_nsofa_with_vis <- nsofa_data %>%
-  filter(child_mrn_uf %in% nicu_term_mrns$child_mrn_uf) %>%
+nsofa_with_vis <- nsofa_data %>%
   left_join(vis_scores, by = c("child_mrn_uf", "q1hr"))
 
-nicu_term_nsofa_with_vis_summary <- nicu_term_nsofa_with_vis %>%
+nsofa_with_vis_summary <- nsofa_with_vis %>%
   mutate(nsofa_above_zero = if_else(nsofa_score > 0, 1, 0)) %>%
   group_by(child_mrn_uf,
            child_birth_date,
@@ -53,5 +51,5 @@ nicu_term_nsofa_with_vis_summary <- nicu_term_nsofa_with_vis %>%
     )
   )
 
-write_csv(nicu_term_nsofa_with_vis, here("output", cohort, str_c(cohort, "_term_nsofa_with_vis_", today(), ".csv")))
-write_csv(nicu_term_nsofa_with_vis_summary, here("output", cohort, str_c(cohort, "_term_nsofa_with_vis_summary_", today(), ".csv")))
+write_csv(nsofa_with_vis, here("output", cohort, str_c(cohort, "nsofa_with_vis_", today(), ".csv")))
+write_csv(nsofa_with_vis_summary, here("output", cohort, str_c(cohort, "nsofa_with_vis_summary_", today(), ".csv")))
