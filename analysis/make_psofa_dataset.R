@@ -4,6 +4,9 @@ library(lubridate)
 library(psofa)
 library(here)
 
+# identify cohort of interest. e.g picu/pcicu/nicu
+cohort <- "picu"
+
 categorized_respiratory_devices <- readxl::read_excel(here(
     "output",
     "categorized_respiratory_devices_2021-09-24-JLW.xlsx"
@@ -11,8 +14,9 @@ categorized_respiratory_devices <- readxl::read_excel(here(
   sheet = 4) %>%
   filter(on_resp_support == 0)
 
-read_child_encounter <- read_csv(here("data", "picu", "ctsit_child_encounter.csv")) %>%
-  clean_names()
+read_child_encounter <- read_csv(here("data", cohort, "encounter.csv")) %>%
+  clean_names() %>%
+  filter(!is.na(dischg_datetime))
 
 child_encounter <- get_child_encounter(read_child_encounter)
 
@@ -23,20 +27,22 @@ expanded_child_encounter <- child_encounter$expanded_child_encounter
 child_dob <- read_child_encounter %>%
   distinct(child_mrn_uf, child_birth_date)
 
-read_child_labs <- read_csv(here("data", "picu", "PICU-child_labs.csv")) %>%
+read_child_labs <- read_csv(here("data", cohort, "labs.csv")) %>%
   clean_names() %>%
   filter(child_mrn_uf %in% transformed_child_encounter$child_mrn_uf) %>%
   mutate_if(is.character, tolower)
 
-read_glasgow <- read_csv(here("data", "picu", "Child_Glasgow_PICU.csv")) %>%
+if (cohort != 'nicu') {
+read_glasgow <- read_csv(here("data", cohort, "glasgow.csv")) %>%
   clean_names()
+}
 
-read_flowsheets <- read_csv(here("data", "picu", "PICU-child_flowsheets.csv")) %>%
+read_flowsheets <- read_csv(here("data", cohort, "flowsheets.csv")) %>%
   clean_names() %>%
   filter(child_mrn_uf %in% transformed_child_encounter$child_mrn_uf) %>%
   mutate_if(is.character, tolower)
 
-read_medications <- read_csv(here("data", "picu", "PICU-child_medications.csv")) %>%
+read_medications <- read_csv(here("data", cohort, "medications.csv")) %>%
   clean_names() %>%
   filter(child_mrn_uf %in% transformed_child_encounter$child_mrn_uf) %>%
   mutate_if(is.character, tolower)
@@ -45,11 +51,18 @@ coagulation <- get_coagulation(read_child_labs)
 
 hepatic <- get_hepatic(read_child_labs)
 
+if (cohort != 'nicu') {
 neurologic <- get_neurologic(read_glasgow)
+} else {
+  neurologic <- tibble(child_mrn_uf = NA_integer_,
+                       q1hr = NA_POSIXct_,
+                       neurologic_score = NA_integer_)
+}
 
 renal <- get_renal(read_child_labs, child_dob)
 
-cv_by_age_group <- get_cv_by_age_group(read_flowsheets, child_dob)
+cv_by_age_group <- get_cv_by_age_group(read_flowsheets, child_dob) %>%
+  select(-c(child_birth_date, age_in_months))
 
 cv_by_vasoactive_infusion <- get_cv_by_vasoactive_infusion(read_medications, expanded_child_encounter)
 
@@ -88,42 +101,109 @@ psofa_data <- list(
   respiratory
 ) %>%
   reduce(left_join, by = c("child_mrn_uf", "q1hr")) %>%
+  arrange(child_mrn_uf, q1hr) %>%
   group_by(child_mrn_uf, encounter) %>%
-  fill(ends_with("_score"), .direction = "down") %>%
+  fill(c(epinephrine,
+         dopamine,
+         norepinephrine,
+         dobutamine,
+         vasopressin,
+         milrinone,
+         ends_with("_score")),
+       .direction = "down") %>%
   ungroup() %>%
   mutate_at(
     vars(
-      ends_with("_score"),
       "epinephrine",
       "dopamine",
       "norepinephrine",
       "dobutamine",
       "vasopressin",
-      "milrinone"
+      "milrinone",
+      ends_with("_score")
     ),
     ~ replace(., is.na(.), 0)
   ) %>%
   mutate(
-    psofa_score = coagulation_score + hepatic_score + neurologic_score + renal_score + cardiovascular_score + respiratory_score
-  ) %>%
+    psofa_score = coagulation_score + hepatic_score + neurologic_score + renal_score + cardiovascular_score + respiratory_score,
+    vis_dopamine = dopamine,
+    vis_dobutamine = dobutamine,
+    vis_milrinone = 10 * milrinone,
+    vis_vasopressin = 10 * vasopressin,
+    vis_epinephrine = 100 * epinephrine,
+    vis_norepinephrine = 100 * norepinephrine,
+    vis_score = dopamine + dobutamine + 10 * milrinone + 10 * vasopressin + 100 * epinephrine + 100 * norepinephrine,
+    vis_above_zero = if_else(vis_score > 0, 1, 0)
+    ) %>%
   select(
     child_mrn_uf,
     encounter,
     child_birth_date,
+    age_at_admission,
     admit_datetime,
     dischg_datetime,
     dischg_disposition,
     q1hr,
-    epinephrine,
-    dopamine,
-    norepinephrine,
-    dobutamine,
-    milrinone,
-    vasopressin,
+    dose_dopamine = dopamine,
+    dose_dobutamine = dobutamine,
+    dose_milrinone = milrinone,
+    dose_vasopressin = vasopressin,
+    dose_epinephrine = epinephrine,
+    dose_norepinephrine = norepinephrine,
     on_respiratory_support,
-    ends_with("_score")
+    ends_with("_score"),
+    starts_with("vis_"),
+    -ends_with("_cardiovascular_score")
   )
 
-filename <- "output/psofa_data"
-# write_csv(psofa_data, paste0(filename, ".csv"))
-saveRDS(psofa_data, paste0(filename, ".rds"))
+vis_greater_than_zero_at_discharge <- psofa_data %>%
+  group_by(child_mrn_uf, encounter) %>%
+  slice_max(q1hr) %>%
+  select(child_mrn_uf, encounter, dischg_disposition, q1hr, dischg_datetime, starts_with("vis_"), vis_score) %>%
+  mutate(last_vis_score_non_zero = if_else(vis_score > 0, "TRUE", NA_character_)) %>%
+  ungroup() %>%
+  filter(!is.na(last_vis_score_non_zero) & str_detect(dischg_disposition, "HOME"))
+
+cv_greater_than_zero_at_discharge <- psofa_data %>%
+  group_by(child_mrn_uf, encounter, age_at_admission) %>%
+  filter(q1hr == max(q1hr)) %>%
+  select(child_mrn_uf, encounter, dischg_disposition, q1hr, cardiovascular_score, age_at_admission) %>%
+  mutate(last_cv_score_non_zero = if_else(cardiovascular_score > 0, "TRUE", NA_character_)) %>%
+  ungroup() %>%
+  filter(!is.na(last_cv_score_non_zero) & dischg_disposition %in% c("TO HOME", "TO HOMECARE"))
+
+psofa_summary <- psofa_data %>%
+  mutate(psofa_above_zero = if_else(psofa_score > 0, 1, 0)) %>%
+  group_by(child_mrn_uf,
+           encounter,
+           child_birth_date,
+           age_at_admission,
+           admit_datetime,
+           dischg_datetime,
+           dischg_disposition
+           ) %>%
+  summarise(
+    across(
+      c(
+        ends_with("_score"),
+        starts_with("dose"),
+        starts_with("vis_")
+      ),
+      list(max = max, sum = sum),
+      .names = "{.col}_{fn}"
+    ),
+    num_hours_psofa_above_zero = sum(psofa_above_zero),
+    total_hospitalization_time_in_hours = n()
+  ) %>%
+  mutate(
+    total_time_in_encounter = round(
+      num_hours_psofa_above_zero / total_hospitalization_time_in_hours,
+      2
+    )
+  )
+
+saveRDS(psofa_data, here("output", cohort, str_c(cohort, "_psofa_data_", today(), ".rds")))
+write_csv(psofa_data, here("output", cohort, str_c(cohort, "_psofa_data_", today(), ".csv")))
+write_csv(psofa_summary, here("output", cohort, str_c(cohort, "_psofa_summary_", today(), ".csv")))
+write_csv(vis_greater_than_zero_at_discharge, here("output", cohort, str_c(cohort, "_vis_greater_than_zero_at_discharge_", today(), ".csv")))
+write_csv(cv_greater_than_zero_at_discharge, here("output", cohort, str_c(cohort, "_cv_greater_than_zero_at_discharge_", today(), ".csv")))
