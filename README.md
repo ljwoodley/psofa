@@ -1,5 +1,7 @@
 # Pediatric Sequential Organ Failure Assessment (pSOFA) Calculation
 
+[![DOI](https://zenodo.org/badge/394686711.svg)](https://zenodo.org/badge/latestdoi/394686711)
+
 ## Purpose of Study
 The Neonatal Sequential Organ Failure Assessment (nSOFA) score predicts mortality risk among preterm septic neonates, however it has yet to be studied in the general neonatal PICU/PCICU population. The pSOFA has shown similar promise to predict PICU sepsis mortality risk at other centers but has yet to be studied in the general PICU/PCICU population. No comparison of utility between the two scoring systems (nSOFA/pSOFA) has been performed in neonates. This study plans to establish a normal range for pSOFA scores across age groups and in the setting of other disease states. It is unknown if the pSOFA can be improved with implementation of different scoring paradigms and inclusion of other data at a more granular level than once per day.
 
