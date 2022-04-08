@@ -23,7 +23,7 @@ glasgow.csv       # Not needed for NICU cohort
 labs.csv
 medications.csv
 ```
-Once acquired, all of the files in the `source_data` folder of the pSOFA file repository, for a given cohort, should be placed in the `./data/<cohort>/` folder of this project to allow the analytic tools to run without modification. Note that the default PICU files as provided by the UF IDR do not conform to these names. If you have downloaded the PICU data to `./data/picu`, you can run `./rename_picu_data.sh` to rename those files to the standard names used by the analytic tools.
+Once acquired, all of the files in the `source_data` folder of the pSOFA file repository, for a given cohort, should be placed in the `./data/<cohort>/` folder of this project to allow the analytic tools to run without modification. Note that the default filenames as provided by the UF IDR do not conform to the names above. To fix the file names of the downloaded data, run `rename_input_files.R`.
 
 Build the psofa package included in this repo. either by running `R CMD INSTALL --preclean --no-multiarch --with-keep.source .` at the root of the repo or using RStudio's Build features.
 

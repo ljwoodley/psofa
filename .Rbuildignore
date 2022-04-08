@@ -6,7 +6,7 @@
 ^analysis/.*$
 ^tests\.bats/.*$
 ^run_tests.sh$
-^rename_picu_data.sh$
+^rename_input_files.R$
 ^VERSION$
 ^images/.*$
 .pdf$
