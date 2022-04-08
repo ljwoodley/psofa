@@ -7,5 +7,7 @@
 ^tests\.bats/.*$
 ^run_tests.sh$
 ^rename_picu_data.sh$
+^VERSION$
+^images/.*$
 .pdf$
 .md$
