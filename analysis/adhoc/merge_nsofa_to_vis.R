@@ -3,12 +3,14 @@ library(here)
 library(readxl)
 library(lubridate)
 
-cohort <- "nicu"
+cohort <- "picu"
 
-nsofa_data <- read_csv(here("data", cohort, "nsofa_score_2020-07-10.csv"))
-nicu_psofa_data <- read_rds(here("output", cohort, "nicu_psofa_data_2022-04-07.rds"))
+# change the input file dates to match your local file dates
+nsofa_data <- read_csv(here("data", cohort, str_c(cohort, "_nsofa_data_2022-04-13.csv")))
+psofa_data <- read_csv(here("output", cohort, str_c(cohort, "_psofa_data_2022-04-05.csv"))) %>%
+  select(-ends_with("_datetime"))
 
-vis_scores <- nicu_psofa_data %>%
+vis_scores <- psofa_data %>%
   select(child_mrn_uf,
          q1hr,
          ends_with("datetime"),
